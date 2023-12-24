@@ -1,26 +1,18 @@
-<?php require_once("UserFramework.php"); $login = new UserAuth(); ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
-    <title>Login</title>
-    <?php if (isset($_POST["email"], $_POST["password"])) :?>
-    <?php
-        $login->login($_POST["email"], $_POST["password"]);
-    ?> 
-    <?php endif; ?>
-    <?php if (isset($_POST["logout"]) && (!empty($_SESSION["id"]))) {
-        $login->LogOut();
-    } ?>
-</head>
-<body>
+<?php require_once("UserFramework.php"); $login = new UserAuth(); require_once ("header.php"); ?>
+
+<?php if (isset($_POST["email"], $_POST["password"])) :?>
+<?php
+    $login->login($_POST["email"], $_POST["password"]);
+?> 
+<?php endif; ?>
+<?php if (isset($_POST["logout"]) && (!empty($_SESSION["id"]))) {
+    $login->LogOut();
+} ?>
 <?php if (isset($_SESSION["id"])): ?>
     <div class="container my-2">
         <div class="alert alert-primary" role="alert">You are currently logged in!</div>
-        <a href="index.php" class="btn btn-primary w-100 mx-auto">Back to Home</a>
+        <a href="index.php" class="btn btn-primary w-100 mx-auto my-2">Back to Home</a>
+        <a href="account.php" class="btn btn-info w-100 mx-auto my-2">Account Page</a>
         <h4>Greetings <?php echo $login->getInformation("username", $_SESSION["id"])?>!</h4>
         <p>Looking to logout? Click below!</p>
         <form method="post">

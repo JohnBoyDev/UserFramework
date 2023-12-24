@@ -140,6 +140,8 @@ class UserAuth extends UFDatabase {
         if (!empty($statement->rowCount())) {
             if (password_verify($pass, $results["User_Pass"])) {
                 $_SESSION["id"] = $results["User_ID"];
+                header("Location: login.php");
+                return(null);
             } else {
             echo("<div class=\"container my-2\">
                 <div class=\"alert alert-danger\" role=\"alert\"><h4>Error!</h4>Email and Password do not match!</div>
@@ -151,6 +153,67 @@ class UserAuth extends UFDatabase {
                 <div class=\"alert alert-danger\" role=\"alert\"><h4>Sorry!</h4>We haven't found an account that matches.</div>
             </div>");
             return(null);
+        }
+    }
+
+    function editAccount($id, $email, $user, $pwd, $updatingPass = false, $newPass = null, $confirmPass = null) {
+        $userID = htmlspecialchars($id);
+        $email = htmlspecialchars($email);
+        $username = htmlspecialchars($user);
+        $pass = htmlspecialchars($pwd);
+        $pass1 = null;
+        $pass2 = null;
+        if ($newPass !== null) {
+            $pass1 = htmlspecialchars($newPass);
+        } if ($confirmPass !== null) {
+            $pass2 = htmlspecialchars($confirmPass);
+        }
+
+        if (!isset($_SESSION["id"])) {
+            return(null);
+        }
+
+        $passwordHash = null;
+
+        $statement = $this->UFDatabase->prepare("SELECT User_Email, User_Pass FROM accounts WHERE User_ID = ?");
+        $statement->execute([htmlspecialchars($userID)]);
+        $results = $statement->fetch(PDO::FETCH_ASSOC);
+
+        $statement->closeCursor();
+
+        if (!empty($statement->rowCount())) {
+            if (password_verify($pass, $results["User_Pass"])) {
+                if($updatingPass) {
+                    if ($pass1 == $pass2) {
+                        $passwordHash = password_hash($pass1, PASSWORD_DEFAULT);
+                        $statement = $this->UFDatabase->prepare("UPDATE accounts SET User_Email = ?, User_Name = ?, User_Pass = ? WHERE User_ID = ?");
+                        $statement->execute([$email, $username, $passwordHash, $userID]);
+                        echo("<div class=\"container my-2\">
+                            <div class=\"alert alert-success\" role=\"alert\">Password has been updated.</div>
+                        </div>");
+                        return(null);
+                    } else {
+                        echo("<div class=\"container my-2\">
+                            <div class=\"alert alert-danger\" role=\"alert\"><h4>Error!</h4>New passwords do not match!</div>
+                        </div>");
+                        return(null);
+                    }
+                } else {
+                    $statement = $this->UFDatabase->prepare("UPDATE accounts SET User_Email = ?, User_Name = ? WHERE User_ID = ?");
+                    $statement->execute([$email, $username, $userID]);
+                    echo("<div class=\"container my-2\">
+                        <div class=\"alert alert-success\" role=\"alert\">Information has been updated.</div>
+                    </div>");
+                    return(null);
+                }
+            } else {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-danger\" role=\"alert\"><h4>Error!</h4>Current password does not match!</div>
+            </div>");
+            return(null);
+            }
+        } else {
+            die("Somehow you tried to edit without an account.");
         }
     }
 
