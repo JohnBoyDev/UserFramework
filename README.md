@@ -4,6 +4,8 @@
 ![Static Badge](https://img.shields.io/badge/MariaDB-10.4.24-006064?style=flat-square&logo=MariaDB)
 ![Static Badge](https://img.shields.io/badge/License-GNU%20GPL3-643464?style=flat-square&logo=gnu)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/O4O2SU3YB)
+
 A PHP-based framework for building authentication designed in object-oriented programming.
 
 #### Table of Contents
