@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 10, 2023 at 06:37 PM
+-- Generation Time: Feb 01, 2024 at 08:48 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -11,17 +11,25 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
 --
 -- Database: `uf-test`
 --
-CREATE DATABASE IF NOT EXISTS `uf-test` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `uf-test`;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `accounts`
+--
+
+CREATE TABLE `accounts` (
+  `User_ID` int(11) NOT NULL,
+  `User_First` varchar(64) NOT NULL,
+  `User_Last` varchar(64) NOT NULL,
+  `User_Name` varchar(24) NOT NULL,
+  `User_Email` varchar(64) NOT NULL,
+  `User_Pass` varchar(2048) NOT NULL,
+  `User_Created` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -29,7 +37,6 @@ USE `uf-test`;
 -- Table structure for table `config`
 --
 
-DROP TABLE IF EXISTS `config`;
 CREATE TABLE `config` (
   `RowID` int(11) NOT NULL,
   `Legal` text NOT NULL,
@@ -41,12 +48,17 @@ CREATE TABLE `config` (
 --
 
 INSERT INTO `config` (`RowID`, `Legal`, `LastUpdate`) VALUES
-(1, 'Legal Text', '2023-07-10 15:08:52'),
-(2, 'Updated Legal', '2023-07-10 15:46:08');
+(1, 'Legal Text', '2023-07-10 15:08:52');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `accounts`
+--
+ALTER TABLE `accounts`
+  ADD PRIMARY KEY (`User_ID`);
 
 --
 -- Indexes for table `config`
@@ -59,12 +71,14 @@ ALTER TABLE `config`
 --
 
 --
+-- AUTO_INCREMENT for table `accounts`
+--
+ALTER TABLE `accounts`
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `config`
 --
 ALTER TABLE `config`
-  MODIFY `RowID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `RowID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
