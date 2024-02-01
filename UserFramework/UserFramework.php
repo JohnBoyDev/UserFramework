@@ -66,8 +66,8 @@ class UFDBTable extends UFDatabase {
         foreach ($this->tableElements as $key => $value) {
             if ($key === 0) {
 $tableResults .= "
-<table>
-    <thead>
+<table class=\"table table-striped table-bordered table-hover text-center table-sm\">
+    <thead class=\"table-dark\">
         <tr>";
                 foreach ($value as $k => $v) {
                     $tableResults .= "
@@ -106,13 +106,6 @@ class UserAuth extends UFDatabase {
 
     function __construct() {
         $this->UFDatabase = new UFDatabase("localhost", "uf-test", "uf-database", "");
-
-        // $statement = $this->UFDatabase->prepare("SELECT User_ID, User_Name, User_Email, User_Pass FROM accounts");
-        // $statement->execute();
-        // $results = $statement->fetchAll(PDO::FETCH_ASSOC);
-        // foreach ($results as $key => $value) {
-        //     array_push($this->tableElements, $value);
-        // }
     }
 
     function login($u, $pwd) {
@@ -131,8 +124,8 @@ class UserAuth extends UFDatabase {
             return(null);
         }
 
-        $statement = $this->UFDatabase->prepare("SELECT User_ID, User_Email, User_Pass FROM accounts WHERE User_Email = ?");
-        $statement->execute([htmlspecialchars($email)]);
+        $statement = $this->UFDatabase->prepare("SELECT User_ID, User_Email, User_Pass FROM accounts WHERE LOWER(User_Email) = ?");
+        $statement->execute([strtolower(htmlspecialchars($email))]);
         $results = $statement->fetch(PDO::FETCH_ASSOC);
 
         $statement->closeCursor();
@@ -217,6 +210,98 @@ class UserAuth extends UFDatabase {
         }
     }
 
+    function signup($fName, $lname, $user, $mail, $confirmE, $pwd, $confirmP) {
+        $firstName = htmlspecialchars($fName);
+        $lastName = htmlspecialchars($lname);
+        $username = htmlspecialchars($user);
+        $email = htmlspecialchars($mail);
+        $confirmEmail = htmlspecialchars($confirmE);
+        $pass = htmlspecialchars($pwd);
+        $confirmPass = htmlspecialchars($confirmP);
+
+        // Username Validation
+        if(preg_match("/[^a-zA-Z0-9]+/", $user)){
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-warning\" role=\"alert\">Your username must not contain special characters.</div>
+            </div>");
+            return("Username Error: Invalid");
+        }
+        else {
+            if (mb_strlen($username) > 32) {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-warning\" role=\"alert\">Your username is more than 32 characters.</div>
+            </div>");
+            return("Username Error: Too many characters");
+            } else {
+                if (mb_strlen($username) < 4) {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-warning\" role=\"alert\">Your username is less than 4 characters.</div>
+            </div>");
+            return("Username Error: Not enough characters");
+                }
+            }
+        }
+
+        // Password Validation
+        if (mb_strlen($pass) < 8) {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-warning\" role=\"alert\">The password does not meet the requirements.</div>
+            </div>");
+            return("Password Error: Not enough characters");
+        } elseif (mb_strlen($pass) > 64) {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-warning\" role=\"alert\">The password does not meet the requirements. 1</div>
+            </div>");
+            return("Password Error: Too many characters");
+        }
+
+        // Check to see if they are logged in, should not be able to signup while logged in.
+        if (isset($_SESSION["id"])) {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-warning\" role=\"alert\"><h4>Error!</h4>You are logged in.</div>
+            </div>");
+            return(null);
+        }
+
+        if ($email === $confirmEmail) {
+            if ($pass === $confirmPass) {
+                // Check if email already exists
+                $statement = $this->UFDatabase->prepare("SELECT User_Email FROM accounts WHERE LOWER(User_Email) = ?");
+                $statement->execute([strtolower(htmlspecialchars($email))]);
+                $statement->closeCursor();
+                if (!empty($statement->rowCount())) {
+                    echo("<div class=\"container my-2\">
+                        <div class=\"alert alert-warning\" role=\"alert\"><h4>Error!</h4>Email already exists, did you mean to login?<a href=\"login.php\" class=\"btn d-block btn-warning my-2\">Login</a></div>
+                    </div>");
+                    return("Email Error: Email taken");
+                }
+                // Check if Username is taken
+                $statement = $this->UFDatabase->prepare("SELECT User_Name FROM accounts WHERE LOWER(User_Name) = ?");
+                $statement->execute([strtolower(htmlspecialchars($username))]);
+                $statement->closeCursor();
+                if (!empty($statement->rowCount())) {
+                    echo("<div class=\"container my-2\">
+                        <div class=\"alert alert-warning\" role=\"alert\"><h4>Sorry!</h4>Username is already taken.</div>
+                    </div>");
+                    return("Email Error: Email taken");
+                }
+                $passwordHash = password_hash($pass, PASSWORD_DEFAULT);
+                $statement = $this->UFDatabase->prepare("INSERT INTO accounts (User_First, User_Last, User_Name, User_Email, User_Pass) VALUES (?, ?, ?, ?, ?)");
+                $statement->execute([$firstName, $lastName, $username, $email, $passwordHash]);
+                echo("<div class=\"container my-2\">
+                    <div class=\"alert alert-success\" role=\"alert\">Account has been created, you may now login.<br><b>Username:</b> $username<br><b>Email:</b> $email</div>
+                </div>");
+                return(null);
+            }
+        } else {
+            echo("<div class=\"container my-2\">
+                <div class=\"alert alert-danger\" role=\"alert\"><h4>Error!</h4>General error, cannot complete.</div>
+            </div>");
+            die(0);
+        }
+
+    }
+
     function getInformation($info, $id) {
         $type = htmlspecialchars($info);
         $ID = htmlspecialchars($id);
@@ -225,7 +310,7 @@ class UserAuth extends UFDatabase {
             return(null);
         }
 
-        $statement = $this->UFDatabase->prepare("SELECT User_ID, User_Name, User_Email, User_Created FROM accounts WHERE User_ID = ?");
+        $statement = $this->UFDatabase->prepare("SELECT User_ID, User_First, User_Last, User_Name, User_Email, User_Created FROM accounts WHERE User_ID = ?");
         $statement->execute([$ID]);
         $results = $statement->fetch(PDO::FETCH_ASSOC);
 
@@ -233,6 +318,12 @@ class UserAuth extends UFDatabase {
 
         if (!empty($statement->rowCount())) {
             switch (strtolower($type)) {
+                case strtolower("first"):
+                    return($results["User_First"]);
+                    break;
+                case strtolower("last"):
+                    return($results["User_Last"]);
+                    break;
                 case strtolower("id"):
                     return($results["User_ID"]);
                     break;
@@ -252,7 +343,8 @@ class UserAuth extends UFDatabase {
     }
 
     function LogOut() {
+        setcookie("Logout", true, time()+10);
         session_destroy();
-        header('Location: login.php');
+        header('Location: index.php');
     }
 }

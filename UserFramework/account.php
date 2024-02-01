@@ -14,8 +14,7 @@
 <?php if (isset($_POST["logout"]) && (!empty($_SESSION["id"]))) {
     $login->LogOut();
 } ?>
-
-<div class="container">
+<div class="container my-3">
     <div class="row">
         <div class="col-8">
             <h4>Account Information: <?php echo $login->getInformation("username", $_SESSION["id"])?></h4>

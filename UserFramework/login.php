@@ -13,7 +13,7 @@
         <div class="alert alert-primary" role="alert">You are currently logged in!</div>
         <a href="index.php" class="btn btn-primary w-100 mx-auto my-2">Back to Home</a>
         <a href="account.php" class="btn btn-info w-100 mx-auto my-2">Account Page</a>
-        <h4>Greetings <?php echo $login->getInformation("username", $_SESSION["id"])?>!</h4>
+        <h4>Greetings <?php echo $login->getInformation("first", $_SESSION["id"])?>!</h4>
         <p>Looking to logout? Click below!</p>
         <form method="post">
             <input type="submit" value="Logout" name="logout" class="btn btn-danger">
@@ -33,7 +33,15 @@
             </div>
             <input type="submit" name="Login" value="Login" class="btn btn-success">
         </form>
-        <a href="index.php" class="btn btn-primary w-100 mx-auto my-4">Back to Home</a>
+        <div class="row">
+            <div class="col">
+            <a href="index.php" class="btn btn-primary w-100 mx-auto my-4">Back to Home</a>
+            </div>
+            <div class="col">
+            <a href="signup.php" class="btn btn-info w-100 mx-auto my-4">Signup</a>
+            </div>
+        </div>
+        
     </div>
 <?php endif; ?>
 </body>
